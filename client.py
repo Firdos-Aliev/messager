@@ -6,8 +6,7 @@ import sqlite3
 from client_db import ClientDB
 
 from common.utils import get_message, send_message
-from common.setting import ACTION, USER, TO_USER, MESSAGE, PRESENCE, HOST, PORT, MAX_PACKAGE_SIZE, ENCODING, CONNECTION, \
-    BAD_GATE_WAY, RESPONSE
+from common.setting import *
 from descriptors.descriptors import Port
 
 
@@ -63,6 +62,13 @@ class User(metaclass=ClientVerifier):
         }
         send_message(self.client, message)
 
+    def create_friend_message(self, to):
+        message = {
+            ACTION: FRIEND_REQUEST,
+            TO_USER: to
+        }
+        send_message(self.client, message)
+
     def create_presence(self):
         message = {
             ACTION: PRESENCE,
@@ -82,7 +88,11 @@ class User(metaclass=ClientVerifier):
 
     def recv_thread(self):
         while True:
-            print(get_message(self.client))
+            message = get_message(self.client)
+            if message[ACTION] == FRIEND_REQUEST:
+                self.db.add_user(message[ID], message[USER])
+                print("У вас новый контакт")
+            print(message)
 
 
 User()

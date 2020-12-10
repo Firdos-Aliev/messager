@@ -70,7 +70,8 @@ class ClientDB:
 
 
 if __name__ == '__main__':
-    db = ClientDB()
+    pass
+    # db = ClientDB("admin_test")
     # db.add_friend(1, "user4")
     # db.add_user(1, "user4")
     # db.messaging("user1", "user2", "hi")

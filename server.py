@@ -100,6 +100,16 @@ class Server(metaclass=ServerVerifier):
 
                 if message[ACTION] == MESSAGE:
                     messages.append(message)
+                if message[ACTION] == FRIEND_REQUEST:
+                    for user in self.db.get_user_list():
+                        if user[1] == message[TO_USER]:
+                            msg = {
+                                ACTION: FRIEND_REQUEST,
+                                ID: user[0],
+                                USER: user[1]
+                                # можно тут передавать всякого рода информацию о пользователе
+                            }
+                            utils.send_message(i, msg)
             except Exception as e:
                 print(e)
         return messages

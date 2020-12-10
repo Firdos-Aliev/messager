@@ -20,6 +20,8 @@ ERROR = 'error'
 MESSAGE = 'message'
 CONNECTION = 'connection'
 BAD_GATE_WAY = 'bad gate way'
+FRIEND_REQUEST = "friend_request"
+ID = "id"
 
 # настройки БД
 TYPE_DB = 'sqlite:///'

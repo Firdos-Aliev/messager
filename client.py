@@ -7,16 +7,14 @@ from client_db import ClientDB
 
 from common.utils import get_message, send_message
 from common.setting import ACTION, USER, TO_USER, MESSAGE, PRESENCE, HOST, PORT, MAX_PACKAGE_SIZE, ENCODING, CONNECTION, \
-    BAD_GATE_WAY
+    BAD_GATE_WAY, RESPONSE
 from descriptors.descriptors import Port
 
-
-# в функции create_connection перейти на клиентсую БД или поменять логику функции(верификация и подключению к серверу)
 
 class User(metaclass=ClientVerifier):
     port = Port()
 
-    def __init__(self, user_name):
+    def __init__(self):
         if len(sys.argv) == 2:
             self.port = int(sys.argv[1])
         else:
@@ -25,8 +23,10 @@ class User(metaclass=ClientVerifier):
         print(f"Клиент запущен на порте: {self.port}")
         self.client = socket(AF_INET, SOCK_STREAM)  # Создать сокет TCP
         self.client.connect((HOST, self.port))  # Соединиться с сервером
-        self.db = ClientDB(user_name)
+
         self.user_name = input("Input user_name: ")
+
+        self.db = None
 
         status = self.create_connection()
         if status == 0:
@@ -42,28 +42,17 @@ class User(metaclass=ClientVerifier):
             read.join()
 
     def create_connection(self):
-        connection = sqlite3.connect("server_data.sqlite")
-        cursor = connection.cursor()
-        cursor.execute("SELECT * FROM user;")
-        result = cursor.fetchall()
-        print(result)
-        for i in result:
-            if i[1] == self.user_name:
-                message = {
-                    ACTION: CONNECTION,
-                    USER: self.user_name,
-                }
-                send_message(self.client, message)
-                return 0
-
-        print("Вы еще не зарегестрированы")
         message = {
-            ACTION: BAD_GATE_WAY,
+            ACTION: CONNECTION,
             USER: self.user_name,
         }
         send_message(self.client, message)
-        input('Press Enter to exit...')
-        return -1
+        response = self.get_response()
+        if response[RESPONSE] == 200:
+            self.db = ClientDB(self.user_name)
+            return 0
+        else:
+            return -1
 
     def create_message(self, to, text):
         message = {
@@ -96,4 +85,4 @@ class User(metaclass=ClientVerifier):
             print(get_message(self.client))
 
 
-User(input("Enter user name: "))
+User()

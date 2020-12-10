@@ -20,6 +20,14 @@ def send_message(socket, message):
 
 
 @log("utils")
+def send_response(socket, code):
+    response = {RESPONSE: code}
+    json_message = json.dumps(response)
+    encoding_message = json_message.encode(ENCODING)
+    socket.send(encoding_message)
+
+
+@log("utils")
 def protocol_presence(message):
     if USER in message:
         # log.info("protocol_presence")

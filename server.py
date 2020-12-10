@@ -24,6 +24,7 @@ class Server(metaclass=ServerVerifier):
         else:
             self.port = PORT
             self.file_db = ""
+
         print(f"Сервер запущен на порте: {self.port}")
         self.server_socket = socket(AF_INET, SOCK_STREAM)  # создаем TCP сокет
         self.server_socket.bind((HOST, self.port))  # указываем хост и порт для поключения
@@ -72,13 +73,22 @@ class Server(metaclass=ServerVerifier):
     # функция принимает сокет клиента,
     # который только что подключился и добавляет его сокет и имя в словарь всех пользователей
     def get_user(self, client_socket):
+
         message = utils.get_message(client_socket)
+
         if message[ACTION] == CONNECTION:
-            self.client_address[message[USER]] = client_socket
-            print(f"Пользователь онлайн: {message[USER]}")
-            self.db.create_login_history(message[USER])
+            for user in self.db.get_user_list():
+                if user[1] == message[USER]:
+                    print(123)
+                    self.client_address[message[USER]] = client_socket
+                    utils.send_response(self.client_address[message[USER]], 200)
+                    self.client_address[message[USER]] = client_socket
+                    print(f"Пользователь онлайн: {message[USER]}")
+                    self.db.create_login_history(message[USER])
+                    return
         else:
             self.client_list.remove(client_socket)
+        utils.send_response(client_socket, 500)
 
     # функция приема всех сообщений, принимает список сокетов,
     # которые готовы принять сообщение возвращается список словарей сообщений
@@ -87,7 +97,9 @@ class Server(metaclass=ServerVerifier):
         for i in clients_socket_to_r:
             try:
                 message = utils.get_message(i)
-                messages.append(message)
+
+                if message[ACTION] == MESSAGE:
+                    messages.append(message)
             except Exception as e:
                 print(e)
         return messages

@@ -1,0 +1,3 @@
+2020-11-07 20:00:09,847 | CRITICAL | server_log           | critical
+2020-11-07 20:00:09,848 | ERROR    | server_log           | error
+2020-11-07 20:00:09,848 | WARNING  | server_log           | warning

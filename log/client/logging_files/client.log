@@ -1,0 +1,6 @@
+2020-11-07 19:55:59,802 | CRITICAL | client_log           | critical
+2020-11-07 19:55:59,802 | ERROR    | client_log           | error
+2020-11-07 19:55:59,802 | WARNING  | client_log           | warning
+2020-11-11 18:29:12,125 | CRITICAL | critical
+2020-11-11 18:29:12,126 | ERROR    | error
+2020-11-11 18:29:12,126 | WARNING  | warning

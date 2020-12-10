@@ -1,0 +1,3 @@
+2020-11-07 20:00:46,317 | CRITICAL | utils_log            | critical
+2020-11-07 20:00:46,317 | ERROR    | utils_log            | error
+2020-11-07 20:00:46,317 | WARNING  | utils_log            | warning

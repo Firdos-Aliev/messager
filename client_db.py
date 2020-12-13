@@ -53,6 +53,13 @@ class ClientDB:
         self.session = s()
         self.session.commit()
 
+    def user_list(self):
+        query = self.session.query(
+            self.User.id,
+            self.User.login
+        )
+        return query.all()
+
     def messaging(self, user, to, msg):
         hist_obj = self.MessageHistory(user, to, msg)
         self.session.add(hist_obj)

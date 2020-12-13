@@ -75,9 +75,11 @@ class SettingsWidget(QWidget):
         if self.port_area.text() != "":
             port = int(self.port_area.text())
             self.active_proc.append(
-                subprocess.Popen(f'python server.py {port} {self.main.db_file_name}', creationflags=subprocess.CREATE_NEW_CONSOLE))
+                subprocess.Popen(f'python server.py {port} {self.main.db_file_name}',
+                                 creationflags=subprocess.CREATE_NEW_CONSOLE))
         else:
-            self.active_proc.append(subprocess.Popen(f'python server.py {PORT} {self.main.db_file_name}', creationflags=subprocess.CREATE_NEW_CONSOLE))
+            self.active_proc.append(subprocess.Popen(f'python server.py {PORT} {self.main.db_file_name}',
+                                                     creationflags=subprocess.CREATE_NEW_CONSOLE))
 
     def change_status(self):
         if self.isHidden():

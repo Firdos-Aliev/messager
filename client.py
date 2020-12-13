@@ -1,8 +1,9 @@
 import sys
 from socket import socket, AF_INET, SOCK_STREAM
 import threading
+
 from metaclasses.metaclasses import ClientVerifier
-import sqlite3
+
 from client_db import ClientDB
 
 from common.utils import get_message, send_message
@@ -13,7 +14,7 @@ from descriptors.descriptors import Port
 class User(metaclass=ClientVerifier):
     port = Port()
 
-    def __init__(self):
+    def __init__(self, user_name):
         if len(sys.argv) == 2:
             self.port = int(sys.argv[1])
         else:
@@ -23,12 +24,12 @@ class User(metaclass=ClientVerifier):
         self.client = socket(AF_INET, SOCK_STREAM)  # Создать сокет TCP
         self.client.connect((HOST, self.port))  # Соединиться с сервером
 
-        self.user_name = input("Input user_name: ")
+        self.user_name = user_name
 
         self.db = None
 
         status = self.create_connection()
-        if status == 0:
+        if status == 0 and __name__ == "__main__":
             read = threading.Thread(target=self.recv_thread)
             read.daemon = True
             read.start()
@@ -36,9 +37,6 @@ class User(metaclass=ClientVerifier):
             write = threading.Thread(target=self.send_thread)
             write.daemon = True
             write.start()
-
-            write.join()
-            read.join()
 
     def create_connection(self):
         message = {
@@ -79,6 +77,13 @@ class User(metaclass=ClientVerifier):
     def get_response(self):
         return get_message(self.client)
 
+    def send_msg(self, to, msg):
+        self.create_message(to, msg)
+        self.db.messaging(self.user_name, to, msg)
+
+    def get_msg(self):
+        return get_message()
+
     def send_thread(self):
         while True:
             to_user = input("Получатель: ")
@@ -95,4 +100,5 @@ class User(metaclass=ClientVerifier):
             print(message)
 
 
-User()
+if __name__ == '__main__':
+    User("user1")

@@ -1,10 +1,12 @@
 import json
 
 from common.setting import *
-from decorators.decorators import log
 
 
-@log("utils")
+# from decorators.decorators import log
+
+
+# @log("utils")
 def get_message(socket):
     message = socket.recv(MAX_PACKAGE_SIZE)  # приняли собщение
     decoding_message = message.decode(ENCODING)  # перевели в utf-8(ENCODING)
@@ -12,14 +14,14 @@ def get_message(socket):
     return json_message
 
 
-@log("utils")
+# @log("utils")
 def send_message(socket, message):
     json_message = json.dumps(message)
     encoding_message = json_message.encode(ENCODING)
     socket.send(encoding_message)
 
 
-@log("utils")
+# @log("utils")
 def send_response(socket, code):
     response = {RESPONSE: code}
     json_message = json.dumps(response)
@@ -27,7 +29,7 @@ def send_response(socket, code):
     socket.send(encoding_message)
 
 
-@log("utils")
+# @log("utils")
 def protocol_presence(message):
     if USER in message:
         # log.info("protocol_presence")
@@ -37,7 +39,7 @@ def protocol_presence(message):
         return {RESPONSE: 406}
 
 
-@log("utils")
+# @log("utils")
 def protocol_message(message):
     if USER in message:
         if TO_USER in message:
@@ -55,7 +57,7 @@ def protocol_message(message):
         return {RESPONSE: 401}
 
 
-@log("utils")
+# @log("utils")
 def protocol_response(message):
     if RESPONSE in message:
         # log.info("protocol_response")

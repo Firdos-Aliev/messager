@@ -12,6 +12,7 @@ USER = 'user'
 TO_USER = 'to'
 USERNAME = 'username'
 SOCKET = "socket"
+PASSWORD = "password"
 
 # протокол типов сообщений
 PRESENCE = 'presence'
@@ -28,5 +29,4 @@ TYPE_DB = 'sqlite:///'
 SERVER_DB_LOCATION = 'server_data.sqlite'
 CLIENT_DB_LOCATION = 'client_data.sqlite'
 
-
-TEST = 'TEST'
+SECRET_KEY = b"jkelfnbp"

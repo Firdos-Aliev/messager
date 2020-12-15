@@ -3,7 +3,7 @@ import sys
 
 format_str = logging.Formatter('%(asctime)s | %(levelname)-8s | %(message)s')
 
-file_handler = logging.FileHandler('logging_files/server.log', encoding="utf-8")
+file_handler = logging.FileHandler('../log/server/logging_files/server.log', encoding="utf-8")
 file_handler.setLevel(logging.INFO)
 file_handler.setFormatter(format_str)
 

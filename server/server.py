@@ -1,5 +1,6 @@
 import select
 import sys
+import hashlib
 from socket import socket, AF_INET, SOCK_STREAM, timeout
 from common.setting import *
 from common import utils
@@ -76,14 +77,16 @@ class Server(metaclass=ServerVerifier):
         message = utils.get_message(client_socket)
 
         if message[ACTION] == CONNECTION:
-            for user in self.db.get_user_list():
+            for user in self.db.get_users_full_info():
                 if user[1] == message[USER]:
-                    self.client_address[message[USER]] = client_socket
-                    utils.send_response(self.client_address[message[USER]], 200)
-                    self.client_address[message[USER]] = client_socket
-                    print(f"Пользователь онлайн: {message[USER]}")
-                    self.db.create_login_history(message[USER])
-                    return
+                    if user[2] == message[PASSWORD]:
+                        self.client_address[message[USER]] = client_socket
+                        utils.send_response(self.client_address[message[USER]], 200)
+                        print(f"Пользователь подключился: {message[USER]}")
+                        self.db.create_login_history(message[USER])
+                        return
+                    else:
+                        print("Пользователь ввел неверный пароль")
         else:
             self.client_list.remove(client_socket)
         utils.send_response(client_socket, 500)

@@ -1,4 +1,5 @@
 import sys
+import hashlib
 from socket import socket, AF_INET, SOCK_STREAM
 import threading
 
@@ -14,7 +15,7 @@ from descriptors.descriptors import Port
 class User(metaclass=ClientVerifier):
     port = Port()
 
-    def __init__(self, user_name):
+    def __init__(self, user_name, password):
         if len(sys.argv) == 2:
             self.port = int(sys.argv[1])
         else:
@@ -25,10 +26,11 @@ class User(metaclass=ClientVerifier):
         self.client.connect((HOST, self.port))  # Соединиться с сервером
 
         self.user_name = user_name
-
+        self.hash = hashlib.md5()
         self.db = None
 
-        status = self.create_connection()
+        self.hash.update(password.encode(ENCODING))
+        status = self.create_connection(self.hash.hexdigest())
         if status == 0 and __name__ == "__main__":
             read = threading.Thread(target=self.recv_thread)
             read.daemon = True
@@ -38,10 +40,14 @@ class User(metaclass=ClientVerifier):
             write.daemon = True
             write.start()
 
-    def create_connection(self):
+            read.join()
+            write.join()
+
+    def create_connection(self, password):
         message = {
             ACTION: CONNECTION,
             USER: self.user_name,
+            PASSWORD: password
         }
         send_message(self.client, message)
         response = self.get_response()
@@ -81,9 +87,6 @@ class User(metaclass=ClientVerifier):
         self.create_message(to, msg)
         self.db.messaging(self.user_name, to, msg)
 
-    def get_msg(self):
-        return get_message()
-
     def send_thread(self):
         while True:
             to_user = input("Получатель: ")
@@ -101,4 +104,4 @@ class User(metaclass=ClientVerifier):
 
 
 if __name__ == '__main__':
-    User("user1")
+    User("user2", "123456")

@@ -7,13 +7,11 @@ from log.client.client_log import log as client_log
 def log(side):
     def decorator(func):
         def wrapper(*args, **kwargs):
-            # func(*args, **kwargs)
-            # print(side)
             if side == "server":
                 server_log.info(func.__name__ + " " + inspect.stack()[1][3])
             if side == "client":
                 client_log.info(func.__name__ + " " + inspect.stack()[1][3])
-            else:
+            if side == "utils":
                 utils_log.info(func.__name__ + " " + inspect.stack()[1][3])
             return func(*args, **kwargs)
 

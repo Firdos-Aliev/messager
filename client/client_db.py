@@ -46,8 +46,10 @@ class ClientDB:
         mapper(self.MessageHistory, message_history)
         mapper(self.Friends, friends)
 
-        s = sessionmaker(bind=self.ENGINE)
-        self.session = s()
+        session_factory = sessionmaker(bind=self.ENGINE)
+        Session = scoped_session(session_factory)
+        self.session = Session()
+
         self.session.commit()
 
     def user_list(self):
@@ -57,6 +59,7 @@ class ClientDB:
         )
         return query.all()
 
+    # взять и от user и to_user данные по 2 пользователям и обьеденить их
     def messaging_history(self, to_user):
         query = self.session.query(
             self.MessageHistory.id,
@@ -85,7 +88,4 @@ class ClientDB:
 
 if __name__ == '__main__':
     db = ClientDB("user1")
-    print(db.messaging_history("user1"))
-    # db.add_user("user1")
-    # db.add_user("user2")
-    # db.add_user("user3")
+

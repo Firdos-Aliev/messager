@@ -1,13 +1,15 @@
 from sqlalchemy import *
 from sqlalchemy.orm import *
+import hashlib
 from datetime import datetime
 from common.setting import TYPE_DB, SERVER_DB_LOCATION
 
 
 class ServerDB:
     class User:
-        def __init__(self, login, info):
+        def __init__(self, login, password, info):
             self.login = login
+            self.password = password
             self.info = info
 
     class LoginHistory:
@@ -25,6 +27,7 @@ class ServerDB:
         user_table = Table('user', self.METADATA,
                            Column('id', Integer, primary_key=True, unique=True, autoincrement=True),
                            Column('login', String),
+                           Column("password", String),
                            Column('info', String)
                            )
 
@@ -46,8 +49,8 @@ class ServerDB:
         self.session = s()
         self.session.commit()
 
-    def create_user(self, login, about):
-        new_user = self.User(login, about)
+    def create_user(self, login, password, about):
+        new_user = self.User(login, password, about)
         self.session.add(new_user)
         self.session.commit()
 
@@ -55,6 +58,15 @@ class ServerDB:
         query = self.session.query(
             self.User.id,
             self.User.login,
+            self.User.info
+        )
+        return query.all()
+
+    def get_users_full_info(self):
+        query = self.session.query(
+            self.User.id,
+            self.User.login,
+            self.User.password,
             self.User.info
         )
         return query.all()
@@ -78,6 +90,11 @@ class ServerDB:
 if __name__ == '__main__':
     db = ServerDB()
 
+
+    for i in range(4):
+        h = hashlib.md5()
+        h.update(b'123456')
+        db.create_user(f"user{i}", h.hexdigest(), f"about me {i}")
     # print(db.get_user_history())
 
     # log = db.LoginHistory("user1")

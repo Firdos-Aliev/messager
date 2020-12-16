@@ -5,10 +5,14 @@ from common.utils import *
 
 
 class TestSocket:
+    """Класс тестов сокета"""
 
     def get_message(self, message):
-        # message = socket.recv(MAX_PACKAGE_SIZE)  пропускаем эту часть, мы явно передадим то что дает нам сокет
-        decoding_message = message.decode(ENCODING)  # перевели в utf-8(ENCODING)
+        """Тест на получение сообщения и его парсинг по протоколу(не работает по вине программиста)"""
+        # message = socket.recv(MAX_PACKAGE_SIZE)  пропускаем эту часть, мы
+        # явно передадим то что дает нам сокет
+        decoding_message = message.decode(
+            ENCODING)  # перевели в utf-8(ENCODING)
         json_message = json.loads(decoding_message)  # из json в python
 
         if ACTION in json_message:
@@ -22,6 +26,7 @@ class TestSocket:
         return {RESPONSE: 405}
 
     def send_message(self, message):
+        """Тест отправки сообщения по протоколу"""
         json_message = json.dumps(message)
         encoding_message = json_message.encode(ENCODING)
         return encoding_message
@@ -29,6 +34,7 @@ class TestSocket:
 
 
 class Tests(unittest.TestCase):
+    """Класс тестов"""
     socket = TestSocket()
 
     def test_get_message(self):

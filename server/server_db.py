@@ -6,6 +6,8 @@ from common.setting import TYPE_DB, SERVER_DB_LOCATION
 
 
 class ServerDB:
+    """Класс серверной Базы Данных основана на sqlalchemy"""
+
     class User:
         def __init__(self, login, password, info):
             self.login = login
@@ -19,23 +21,27 @@ class ServerDB:
 
     def __init__(self, location=""):
         if location != "":
-            self.ENGINE = create_engine(TYPE_DB + location, echo=False, pool_recycle=7200)
+            self.ENGINE = create_engine(
+                TYPE_DB + location, echo=False, pool_recycle=7200)
         else:
-            self.ENGINE = create_engine(TYPE_DB + SERVER_DB_LOCATION, echo=False, pool_recycle=7200)
+            self.ENGINE = create_engine(
+                TYPE_DB + SERVER_DB_LOCATION,
+                echo=False,
+                pool_recycle=7200)
         self.METADATA = MetaData()
 
-        user_table = Table('user', self.METADATA,
-                           Column('id', Integer, primary_key=True, unique=True, autoincrement=True),
-                           Column('login', String),
-                           Column("password", String),
-                           Column('info', String)
-                           )
+        user_table = Table(
+            'user', self.METADATA, Column(
+                'id', Integer, primary_key=True, unique=True, autoincrement=True), Column(
+                'login', String), Column(
+                "password", String), Column(
+                    'info', String))
 
-        login_history_table = Table('log_history', self.METADATA,
-                                    Column('id', Integer, autoincrement=True, unique=True, primary_key=True),
-                                    Column("login", String),
-                                    Column("time", String)
-                                    )
+        login_history_table = Table(
+            'log_history', self.METADATA, Column(
+                'id', Integer, autoincrement=True, unique=True, primary_key=True), Column(
+                "login", String), Column(
+                "time", String))
 
         # создаем таблицы (как миграции в django ORM)
         self.METADATA.create_all(self.ENGINE)
@@ -50,11 +56,13 @@ class ServerDB:
         self.session.commit()
 
     def create_user(self, login, password, about):
+        """Функция-запрос на добавление нового пользователя в БД"""
         new_user = self.User(login, password, about)
         self.session.add(new_user)
         self.session.commit()
 
     def get_user_list(self):
+        """Функция-запрос на получения всех пользователей без пароля"""
         query = self.session.query(
             self.User.id,
             self.User.login,
@@ -63,6 +71,7 @@ class ServerDB:
         return query.all()
 
     def get_users_full_info(self):
+        """Функция-запрос на получение всей информации о пользователях"""
         query = self.session.query(
             self.User.id,
             self.User.login,
@@ -72,6 +81,7 @@ class ServerDB:
         return query.all()
 
     def get_user_history(self):
+        """Функция-запрос на получении истории входа всех пользователей"""
         query = self.session.query(
             self.LoginHistory.id,
             self.LoginHistory.login,
@@ -80,6 +90,7 @@ class ServerDB:
         return query.all()
 
     def create_login_history(self, login):
+        """Функция-запрос на создание истории входа клиента"""
         log = self.LoginHistory(login)
         self.session.add(log)
         self.session.commit()
@@ -89,12 +100,6 @@ class ServerDB:
 
 if __name__ == '__main__':
     db = ServerDB()
-
-
-    for i in range(4):
-        h = hashlib.md5()
-        h.update(b'123456')
-        db.create_user(f"user{i}", h.hexdigest(), f"about me {i}")
     # print(db.get_user_history())
 
     # log = db.LoginHistory("user1")

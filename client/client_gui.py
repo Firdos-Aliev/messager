@@ -4,12 +4,13 @@ import sqlite3
 from PyQt5.QtWidgets import QMainWindow, QApplication, QWidget, QVBoxLayout, QScrollArea, QLabel, QPushButton, \
     QTextEdit, QHBoxLayout, QLineEdit, QDialog
 
-from client import User
+from client_user import User
 from common.setting import MESSAGE, USER, ACTION, FRIEND_REQUEST, ID, TO_USER
 from common.utils import get_message
 
 
 class MainForm(QDialog):
+    """Класс главной формы приложения"""
     def __init__(self, user_name, password):
         super().__init__()
 
@@ -22,8 +23,9 @@ class MainForm(QDialog):
         self.initUI()
 
     def initUI(self):
-        #central_widget = QWidget(self)
-        #self.setCentralWidget(central_widget)
+        """Функция инициализации всех сущностей главной формы"""
+        # central_widget = QWidget(self)
+        # self.setCentralWidget(central_widget)
         layout = QHBoxLayout()
         self.setLayout(layout)
 
@@ -45,6 +47,7 @@ class MainForm(QDialog):
 
 
 class AuthForm(QMainWindow):
+    """Класс начального окна авторизации"""
     def __init__(self):
         super().__init__()
 
@@ -77,6 +80,7 @@ class AuthForm(QMainWindow):
         self.show()
 
     def auth(self):
+        """Функция на зпрос серверу на авторизацию"""
         user_name = self.login_field.text()
         password = self.password_field.text()
         self.hide()
@@ -84,8 +88,8 @@ class AuthForm(QMainWindow):
         form.exec_()
 
 
-
 class Chat(QWidget):
+    """Класс окна чата"""
     def __init__(self, main_form):
         super().__init__()
 
@@ -107,9 +111,11 @@ class Chat(QWidget):
         self.show()
 
     def load_history(self):
+        """Функция взятия истрии переписок"""
         print(self.main_form.db.messaging_history(self.main_form.chat_with))
 
     def rscv(self):
+        """Поток принятия всех сообщений"""
         while True:
             msg = get_message(self.main_form.user.client)
             print(msg)
@@ -119,6 +125,7 @@ class Chat(QWidget):
                 self.main_form.db.messaging(msg[USER], msg[TO_USER], msg[MESSAGE])
 
     def send(self):
+        """Функция на отправку сообщения"""
         if self.main_form.chat_with == "":
             print("Пользователь не выбран")
         else:
@@ -132,6 +139,7 @@ class Chat(QWidget):
 
 # можно QScrollArea сделать в виже декоратора
 class ScrollBarUserList(QWidget):
+    """Класс списка контактов"""
     def __init__(self, main_form):
         super().__init__()
 
@@ -158,10 +166,12 @@ class ScrollBarUserList(QWidget):
         self.show()
 
     def add_user(self, user_name):
+        """Функция добавления нового пользователя"""
         self.user_list.add_user(user_name)
 
 
 class UserList(QWidget):
+    """Класс списка всех конактов клиента"""
     def __init__(self, main_form):
         super().__init__()
         self.main_form = main_form
@@ -171,11 +181,13 @@ class UserList(QWidget):
         self.setLayout(self.layout)
 
     def add_user(self, user_name):
+        """Функция добавления всех пользователей"""
         self.main_form.db.add_user(user_name)
         self.layout.addWidget(UserItem(user_name, self.main_form))
 
 
 class UserItem(QWidget):
+    """Класс для хранения на форме определнного контакта"""
     def __init__(self, name, main_form):
         super().__init__()
 
@@ -194,6 +206,10 @@ class UserItem(QWidget):
         self.show()
 
     def mousePressEvent(self, event):
+        """
+        Функция-сигнал на нажатие мышки
+        Начинает чат с тем, на кого сработал сигнал
+        """
         self.main_form.chat_with = self.name
         self.main_form.chat.chat_with.setText(self.main_form.chat_with)
 

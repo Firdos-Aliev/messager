@@ -5,6 +5,7 @@ from log.client.client_log import log as client_log
 
 
 def log(side):
+    """Декоратор для логирования функций"""
     def decorator(func):
         def wrapper(*args, **kwargs):
             if side == "server":

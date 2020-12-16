@@ -9,6 +9,8 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, QTableWidget, QV
 
 
 class MainForm(QMainWindow):
+    """Главная форма gui сервера"""
+
     def __init__(self, db_file_name=""):
         super().__init__()
 
@@ -37,6 +39,13 @@ class MainForm(QMainWindow):
 
 
 class SettingsWidget(QWidget):
+    """
+    Виджет всех настроек сервера
+    Ввод порта
+    Смена Базы Данных
+    Запуск сервера
+    """
+
     def __init__(self, main_form):
         super().__init__()
 
@@ -62,12 +71,14 @@ class SettingsWidget(QWidget):
         self.layout.addWidget(self.start_b)
 
     def get_file(self):
+        """Функция выбора пользователем файла БД, и перезапуск приложения на заданой БД"""
         file = QFileDialog().getOpenFileName(filter="*.sqlite")
         file_dir = file[0].split("/")[-1]
         subprocess.Popen(f'python server_gui.py {file_dir}')
         self.main.close()
 
     def run_server(self):
+        """Функция запуска сервера в зависимости от параметров"""
         if len(self.active_proc) > 0:
             proc = self.active_proc.pop()
             proc.kill()
@@ -75,13 +86,17 @@ class SettingsWidget(QWidget):
         if self.port_area.text() != "":
             port = int(self.port_area.text())
             self.active_proc.append(
-                subprocess.Popen(f'python server.py {port} {self.main.db_file_name}',
-                                 creationflags=subprocess.CREATE_NEW_CONSOLE))
+                subprocess.Popen(
+                    f'python server.py {port} {self.main.db_file_name}',
+                    creationflags=subprocess.CREATE_NEW_CONSOLE))
         else:
-            self.active_proc.append(subprocess.Popen(f'python server.py {PORT} {self.main.db_file_name}',
-                                                     creationflags=subprocess.CREATE_NEW_CONSOLE))
+            self.active_proc.append(
+                subprocess.Popen(
+                    f'python server.py {PORT} {self.main.db_file_name}',
+                    creationflags=subprocess.CREATE_NEW_CONSOLE))
 
     def change_status(self):
+        """Функция сокрытия и показа виджета"""
         if self.isHidden():
             self.show()
         else:
@@ -89,6 +104,8 @@ class SettingsWidget(QWidget):
 
 
 class Tools(QToolBar):
+    """Класс инструментов(навигации) приложения"""
+
     def __init__(self, user_table, user_info, settings):
         super().__init__()
 
@@ -107,6 +124,8 @@ class Tools(QToolBar):
 
 
 class UserInfo(QWidget):
+    """Класс отображения данных авторизации пользователей"""
+
     def __init__(self, main_form):
         super().__init__()
 
@@ -129,6 +148,7 @@ class UserInfo(QWidget):
         self.layout.addWidget(self.push_info)
 
     def update_table(self):
+        """Функция обновления данных на форме"""
         data = self.main.db.get_user_history()
         self.table.setRowCount(0)  # очищаем таблицу
 
@@ -141,6 +161,7 @@ class UserInfo(QWidget):
             self.table.setItem(row, 2, QTableWidgetItem(time.__str__()))
 
     def change_status(self):
+        """Функция сокрытия и показа виджета"""
         if self.isHidden():
             self.show()
         else:
@@ -148,6 +169,8 @@ class UserInfo(QWidget):
 
 
 class UsersTable(QWidget):
+    """Класс отображения данных о клиентах"""
+
     def __init__(self, main_form):
         super().__init__()
 
@@ -170,6 +193,7 @@ class UsersTable(QWidget):
         self.layout.addWidget(self.push_user)
 
     def update_table(self):
+        """Функция обновления данных на форме"""
         user_list = self.main.db.get_user_list()  # берем из БД данные
         self.table.setRowCount(0)  # очищаем таблицу
 
@@ -182,6 +206,7 @@ class UsersTable(QWidget):
             self.table.setItem(row, 2, QTableWidgetItem(info.__str__()))
 
     def change_status(self):
+        """Функция сокрытия и показа виджета"""
         if self.isHidden():
             self.show()
         else:

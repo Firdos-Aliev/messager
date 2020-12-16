@@ -13,6 +13,7 @@ from descriptors.descriptors import Port
 
 
 class User(metaclass=ClientVerifier):
+    """Главный класс клиента, в нем осуществялется инициализация всех нужных сущностей для работы с сервером"""
     port = Port()
 
     def __init__(self, user_name, password):
@@ -44,6 +45,7 @@ class User(metaclass=ClientVerifier):
             write.join()
 
     def create_connection(self, password):
+        """Функция валидации и подключения с сервером, также подключение к клиентской БД"""
         message = {
             ACTION: CONNECTION,
             USER: self.user_name,
@@ -58,6 +60,7 @@ class User(metaclass=ClientVerifier):
             return -1
 
     def create_message(self, to, text):
+        """Функция отправки сообщения определенному клиенту"""
         message = {
             ACTION: MESSAGE,
             USER: self.user_name,
@@ -67,6 +70,7 @@ class User(metaclass=ClientVerifier):
         send_message(self.client, message)
 
     def create_friend_message(self, to):
+        """Функция на зпрос серверу на добавление в друзья"""
         message = {
             ACTION: FRIEND_REQUEST,
             TO_USER: to
@@ -84,10 +88,12 @@ class User(metaclass=ClientVerifier):
         return get_message(self.client)
 
     def send_msg(self, to, msg):
+        """Функция отправки сообщения + учет истори исообщений"""
         self.create_message(to, msg)
         self.db.messaging(self.user_name, to, msg)
 
     def send_thread(self):
+        """Поток для отправки сообщений"""
         while True:
             to_user = input("Получатель: ")
             msg = input(">>>")
@@ -95,6 +101,7 @@ class User(metaclass=ClientVerifier):
             self.db.messaging(self.user_name, to_user, msg)
 
     def recv_thread(self):
+        """Потоко на получение всех сообщений"""
         while True:
             message = get_message(self.client)
             if message[ACTION] == FRIEND_REQUEST:

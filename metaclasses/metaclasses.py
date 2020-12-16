@@ -2,6 +2,7 @@ import dis
 
 
 class ServerVerifier(type):
+    """Мета класс сервера"""
     def __init__(cls, clsname, bases, clsdict):
 
         components = []
@@ -10,8 +11,7 @@ class ServerVerifier(type):
             try:
                 ret = dis.get_instructions(clsdict[function])
             except Exception as e:
-                pass
-                #print(e)
+                print(e)
             for i in ret:
                 components.append(i.argval)
 
@@ -25,6 +25,7 @@ class ServerVerifier(type):
 
 
 class ClientVerifier(type):
+    """Мета класс клиента"""
     def __init__(cls, clsname, bases, clsdict):
 
         super().__init__(clsname, bases, clsdict)

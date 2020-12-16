@@ -5,6 +5,7 @@ from common.setting import TYPE_DB, CLIENT_DB_LOCATION
 
 
 class ClientDB:
+    """Класс клиентской Базы Данных основана на sqlalchemy"""
     class User:
         def __init__(self, login):
             self.login = login
@@ -53,6 +54,7 @@ class ClientDB:
         self.session.commit()
 
     def user_list(self):
+        """Функция-запрос получения данных о контактах"""
         query = self.session.query(
             self.User.id,
             self.User.login
@@ -61,6 +63,7 @@ class ClientDB:
 
     # взять и от user и to_user данные по 2 пользователям и обьеденить их
     def messaging_history(self, to_user):
+        """Функция-запрос взятия истории переписок с учатием данного пользователя"""
         query = self.session.query(
             self.MessageHistory.id,
             self.MessageHistory.user,
@@ -71,16 +74,19 @@ class ClientDB:
         return query.filter_by(user=to_user).all()
 
     def messaging(self, user, to, msg):
+        """Функция-запрос на запись истории переписки"""
         hist_obj = self.MessageHistory(user, to, msg)
         self.session.add(hist_obj)
         self.session.commit()
 
     def add_friend(self, login):
+        """Функция-запрос на добавления в друзья"""
         new_friend = self.Friends(login)
         self.session.add(new_friend)
         self.session.commit()
 
     def add_user(self, login):
+        """Функция-запрос на добавления в контакты"""
         new_user = self.User(login)
         self.session.add(new_user)
         self.session.commit()

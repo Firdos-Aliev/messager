@@ -3,7 +3,7 @@ from common.utils import *
 
 
 class TestProtocol(unittest.TestCase):
-
+    """Класс тестов проекта(не рабочие по ошибке программиста)"""
     def test_protocol_presence(self):
         self.assertEqual(protocol_presence(
             {'action': 'presence', 'user': 'user2'}),

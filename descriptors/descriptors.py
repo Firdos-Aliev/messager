@@ -1,4 +1,5 @@
 class Port:
+    """Класс-дескриптор для порта"""
     def __get__(self, instance, owner):
         return instance.__dict__[self.name]
 

@@ -1,6 +1,5 @@
 import select
 import sys
-import hashlib
 from socket import socket, AF_INET, SOCK_STREAM, timeout
 from common.setting import *
 from common import utils
@@ -9,9 +8,16 @@ from metaclasses.metaclasses import ServerVerifier
 from descriptors.descriptors import Port
 
 
-# создать прием и отправку по протоколам
-
 class Server(metaclass=ServerVerifier):
+    """
+    Главный класс сервера
+    Преднозначеный для приема клиентов и отправки сообщений определенным клиентам,
+    так же парсит сообщения и обрабатывает из по протоколу JIM
+    Запускаемый на определенном ip (localhost) и любом порте по правилам дескриптора порта
+    имеет 2 не обязательных параметра при запуске:
+        - порт
+        - файл БД сервера
+    """
     port = Port()  # дексриптор для порта
 
     def __init__(self):  # если ввели один параметр, записываем его в порт, иначе порт по умолчанию
@@ -27,21 +33,28 @@ class Server(metaclass=ServerVerifier):
 
         print(f"Сервер запущен на порте: {self.port}")
         self.server_socket = socket(AF_INET, SOCK_STREAM)  # создаем TCP сокет
-        self.server_socket.bind((HOST, self.port))  # указываем хост и порт для поключения
-        self.server_socket.listen(MAX_QUERY_CONNCETIONS)  # максимальная очередб прослушивания
-        self.server_socket.settimeout(TIMEOUT)  # скорость обновления проверки новых запросов
+        # указываем хост и порт для поключения
+        self.server_socket.bind((HOST, self.port))
+        # максимальная очередб прослушивания
+        self.server_socket.listen(MAX_QUERY_CONNCETIONS)
+        # скорость обновления проверки новых запросов
+        self.server_socket.settimeout(TIMEOUT)
 
-        self.db = server_db.ServerDB(location=self.file_db)  # обьект для работы с БД
+        self.db = server_db.ServerDB(
+            location=self.file_db)  # обьект для работы с БД
         self.client_list = []  # список поключенный пользователей (онлайн)
         self.client_address = {}  # словарь вида имя - сокет
         print("Сервер создан")
 
-    # основная функция сервера, где происходит основной цикл принятия всех сообшений и пользователей
+    # основная функция сервера, где происходит основной цикл принятия всех
+    # сообшений и пользователей
     def run_server(self):
+        """Главный цикл сервера, где осуществляется прием всех пользователей"""
         print("Сервер запущен")
         while True:
             try:
-                # таймер на ожидание нового подключения задано в timeout серверного сокета
+                # таймер на ожидание нового подключения задано в timeout
+                # серверного сокета
                 client_socket, ip_address = self.server_socket.accept()
                 # self.server_socket.connect(("localhost", 8000))
                 # сохраняем подключенного пользователя
@@ -49,7 +62,8 @@ class Server(metaclass=ServerVerifier):
                 self.get_user(client_socket)
                 print("Новый пользователь подключился успешно")
             except timeout:
-                print("----------------------------------------------------------------------")
+                print(
+                    "----------------------------------------------------------------------")
                 print("Ожидание...")
 
             r = []  # клиент присылает сообщение
@@ -58,7 +72,8 @@ class Server(metaclass=ServerVerifier):
 
             try:
                 # селект функция для формирования
-                r, w, e = select.select(self.client_list, self.client_list, [], 0)
+                r, w, e = select.select(
+                    self.client_list, self.client_list, [], 0)
             except Exception as e:
                 print(e)
 
@@ -71,9 +86,10 @@ class Server(metaclass=ServerVerifier):
             self.send_messages(messages)
 
     # функция принимает сокет клиента,
-    # который только что подключился и добавляет его сокет и имя в словарь всех пользователей
+    # который только что подключился и добавляет его сокет и имя в словарь
+    # всех пользователей
     def get_user(self, client_socket):
-
+        """Функция валидации и приема клиента"""
         message = utils.get_message(client_socket)
 
         if message[ACTION] == CONNECTION:
@@ -81,7 +97,8 @@ class Server(metaclass=ServerVerifier):
                 if user[1] == message[USER]:
                     if user[2] == message[PASSWORD]:
                         self.client_address[message[USER]] = client_socket
-                        utils.send_response(self.client_address[message[USER]], 200)
+                        utils.send_response(
+                            self.client_address[message[USER]], 200)
                         print(f"Пользователь подключился: {message[USER]}")
                         self.db.create_login_history(message[USER])
                         return
@@ -94,6 +111,7 @@ class Server(metaclass=ServerVerifier):
     # функция приема всех сообщений, принимает список сокетов,
     # которые готовы принять сообщение возвращается список словарей сообщений
     def get_messages(self, clients_socket_to_r):
+        """Функция приема всех сообщений, и парсинг по типам запросов на сервер"""
         messages = []
         for i in clients_socket_to_r:
             try:
@@ -108,7 +126,8 @@ class Server(metaclass=ServerVerifier):
                                 ACTION: FRIEND_REQUEST,
                                 ID: user[0],
                                 USER: user[1]
-                                # можно тут передавать всякого рода информацию о пользователе
+                                # можно тут передавать всякого рода информацию
+                                # о пользователе
                             }
                             utils.send_message(i, msg)
             except Exception as e:
@@ -118,6 +137,7 @@ class Server(metaclass=ServerVerifier):
     # функция отправки сообщения конкретным пользователям,
     # принимает список словарей сообщений
     def send_messages(self, messages):
+        """Функция отправки всех сообщений"""
         message = {
             ACTION: MESSAGE,
             USER: '',
@@ -130,7 +150,8 @@ class Server(metaclass=ServerVerifier):
                     message[USER] = messages[j][USER]
                     message[TO_USER] = messages[j][TO_USER]
                     message[MESSAGE] = messages[j][MESSAGE]
-                    utils.send_message(self.client_address[messages[j][TO_USER]], message)
+                    utils.send_message(
+                        self.client_address[messages[j][TO_USER]], message)
                 else:
                     print("User is not online")
             except Exception as e:

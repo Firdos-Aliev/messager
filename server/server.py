@@ -6,6 +6,7 @@ from common import utils
 import server_db
 from metaclasses.metaclasses import ServerVerifier
 from descriptors.descriptors import Port
+from sqlalchemy.sql import default_comparator
 
 
 class Server(metaclass=ServerVerifier):

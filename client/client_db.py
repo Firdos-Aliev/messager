@@ -2,10 +2,12 @@ from datetime import datetime
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from common.setting import TYPE_DB, CLIENT_DB_LOCATION
+from sqlalchemy.sql import default_comparator
 
 
 class ClientDB:
     """Класс клиентской Базы Данных основана на sqlalchemy"""
+
     class User:
         def __init__(self, login):
             self.login = login
@@ -94,4 +96,3 @@ class ClientDB:
 
 if __name__ == '__main__':
     db = ClientDB("user1")
-

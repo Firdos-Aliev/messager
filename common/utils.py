@@ -52,3 +52,38 @@ def send_response(socket, code):
     encoding_message = json_message.encode(ENCODING)
     encrypt = encrypt_message(encoding_message)
     socket.send(encrypt)
+
+
+def protocol_presence(message):
+    if USER in message:
+        # log.info("protocol_presence")
+        return {RESPONSE: 200}
+    else:
+        # log.error("protocol_presence")
+        return {RESPONSE: 406}
+
+
+def protocol_message(message):
+    if USER in message:
+        if TO_USER in message:
+            if MESSAGE in message:
+                # log.info("protocol_message")
+                return {RESPONSE: 200}
+            else:
+                # log.error("protocol_message")
+                return {RESPONSE: 403}
+        else:
+            # log.error("protocol_message")
+            return {RESPONSE: 402}
+    else:
+        # log.error("protocol_message")
+        return {RESPONSE: 401}
+
+
+def protocol_response(message):
+    if RESPONSE in message:
+        # log.info("protocol_response")
+        return message
+    else:
+        # log.error("protocol_response")
+        return {RESPONSE: 404}
